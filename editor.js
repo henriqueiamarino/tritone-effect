@@ -25,7 +25,7 @@
 
 	const { addFilter }                         = wp.hooks;
 	const { createHigherOrderComponent }        = wp.compose;
-	const { Fragment, createElement, useState } = wp.element;
+	const { Fragment, createElement, useState, useEffect } = wp.element;
 	const { InspectorControls, BlockControls }  = wp.blockEditor;
 	const { __ }                                = wp.i18n;
 
@@ -329,6 +329,48 @@
 			const imgSelector = TRITONE_BLOCKS[ props.name ];
 			const fid = tritoneEnabled ? makeFilterId( tritoneColors ) : null;
 
+			// ── Mutual exclusion with core Duotone ────────────────────────────
+			// Tritone and Duotone are two different mappings of the same image
+			// channel and must never apply together. We enforce this in two
+			// directions:
+			//   1. When *enabling* Tritone, we strip any existing duotone
+			//      attribute in the same setAttributes call (no race).
+			//   2. When the user applies Duotone via core's toolbar, the
+			//      duotone attribute changes externally — a useEffect watches
+			//      that change and clears Tritone.
+
+			const duotone = attributes.style && attributes.style.color
+				? attributes.style.color.duotone
+				: undefined;
+
+			// Wrapped setAttributes: when enabling Tritone, also clear duotone.
+			const applyTritone = function ( newAttrs ) {
+				if ( newAttrs.tritoneEnabled && duotone ) {
+					const colorRest = Object.assign( {}, attributes.style && attributes.style.color );
+					delete colorRest.duotone;
+					const newStyle = Object.assign( {}, attributes.style );
+					if ( Object.keys( colorRest ).length > 0 ) {
+						newStyle.color = colorRest;
+					} else {
+						delete newStyle.color;
+					}
+					setAttributes( Object.assign( {}, newAttrs, { style: newStyle } ) );
+				} else {
+					setAttributes( newAttrs );
+				}
+			};
+
+			// Watch for externally-applied Duotone and clear Tritone.
+			useEffect( function () {
+				if ( duotone && tritoneEnabled ) {
+					setAttributes( {
+						tritoneEnabled: false,
+						tritoneColors:  DEFAULT_COLORS,
+					} );
+				}
+			// eslint-disable-next-line react-hooks/exhaustive-deps
+			}, [ duotone ] );
+
 			// ── Toolbar button ────────────────────────────────────────────────
 			// Mirrors the duotone-control pattern:
 			//   Dropdown > renderContent > MenuGroup > description + TritoneBody
@@ -358,7 +400,7 @@
 								createElement( 'p', {
 									style: { margin: '13px 0', fontSize: 13, lineHeight: '19.5px' },
 								}, __( 'Create a three-tone color effect without losing your original image.' ) ),
-								createElement( TritoneBody, { tritoneColors, tritoneEnabled, setAttributes } ),
+								createElement( TritoneBody, { tritoneColors, tritoneEnabled, setAttributes: applyTritone } ),
 								tritoneEnabled
 									? createElement( 'div', { style: { textAlign: 'right', marginTop: 8 } },
 										createElement( Button, {
@@ -388,14 +430,14 @@
 							onDeselect:       () => setAttributes( { tritoneEnabled: false } ),
 							isShownByDefault: false,
 						},
-							createElement( TritoneBody, { tritoneColors, tritoneEnabled, setAttributes } ),
+							createElement( TritoneBody, { tritoneColors, tritoneEnabled, setAttributes: applyTritone } ),
 						)
 					)
 				);
 			} else {
 				panel = createElement( InspectorControls, null,
 					createElement( PanelBody, { title: __( 'Tritone' ), initialOpen: false },
-						createElement( TritoneBody, { tritoneColors, tritoneEnabled, setAttributes } ),
+						createElement( TritoneBody, { tritoneColors, tritoneEnabled, setAttributes: applyTritone } ),
 					)
 				);
 			}
