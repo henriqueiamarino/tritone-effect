@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Tritone Effect
  * Description: Adds a three-color gradient mapping effect (shadow, midtone, highlight) to Image, Cover, Site Logo, Featured Image, and Avatar blocks — like duotone but with a midtone stop. Presets are defined per theme in theme.json under settings.custom.tritone using the same colors[] convention as core duotone.
- * Version:     0.2.0
+ * Version:     0.2.1
  * Requires at least: 6.3
  * Author:      HVAC Theme
  */

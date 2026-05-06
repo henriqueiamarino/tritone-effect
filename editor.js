@@ -443,18 +443,22 @@
 			}
 
 			// ── Canvas preview ────────────────────────────────────────────────
-			if ( ! fid ) {
-				return createElement( Fragment, null, toolbar, panel, createElement( BlockEdit, props ) );
-			}
-
-			const filterStyle = createElement( 'style', { key: 'te-style-' + clientId },
-				`[data-block="${ clientId }"] ${ imgSelector } { filter: url(#${ fid }) !important; }`
-			);
+			// Always emit the same 5-slot Fragment so BlockEdit keeps its
+			// position across renders. If we returned a 3-child Fragment when
+			// fid is null and a 5-child one when set, React's position-based
+			// reconciliation would unmount BlockEdit when toggling tritone
+			// on/off — which on core/cover wipes the background image from
+			// the editor canvas.
+			const filterStyle = fid
+				? createElement( 'style', { key: 'te-style-' + clientId },
+					`[data-block="${ clientId }"] ${ imgSelector } { filter: url(#${ fid }) !important; }`
+				  )
+				: null;
 
 			return createElement( Fragment, null,
 				toolbar,
 				panel,
-				buildSvgFilter( fid, tritoneColors ),
+				fid ? buildSvgFilter( fid, tritoneColors ) : null,
 				filterStyle,
 				createElement( BlockEdit, props ),
 			);
