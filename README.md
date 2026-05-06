@@ -4,6 +4,18 @@ A Gutenberg block-editor filter that adds a third color stop to Duotone — shad
 
 > **Status:** Prototype. Not a polished plugin. Ships as a no-build single-file plugin so it can be inspected, run, and modified in seconds.
 
+## Demo
+
+**Toolbar dropdown**
+Pick a preset or fine-tune each stop from the block toolbar — same flow as Duotone.
+
+https://github.com/user-attachments/assets/23c62863-fd01-4f10-b080-4561d208896e
+
+**Styles panel**
+Or reach the same controls from the Styles tab in the block inspector.
+
+https://github.com/user-attachments/assets/8411271c-5e68-43aa-878c-2ac59574aa1b
+
 ## What it does
 
 - Adds a **Tritone** toolbar button to Image, Cover, Site Logo, Post Featured Image, and Avatar blocks — the same set Duotone supports.
