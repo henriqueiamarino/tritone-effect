@@ -4,6 +4,8 @@ A Gutenberg block-editor filter that adds a third color stop to Duotone — shad
 
 > **Status:** Prototype. Not a polished plugin. Ships as a no-build single-file plugin so it can be inspected, run, and modified in seconds.
 
+> **Upstream:** Draft PR for inclusion in core Gutenberg: [WordPress/gutenberg#78167](https://github.com/WordPress/gutenberg/pull/78167). This repo remains the fastest way to try the effect in a regular WordPress install.
+
 ## Demo
 
 **Toolbar dropdown**
